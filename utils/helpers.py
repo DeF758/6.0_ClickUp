@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 
 
 class Helper:
-    @classmethod
-    def get_env_variable(cls, name):
+    @staticmethod
+    def get_env_variable( name):
         load_dotenv()
         value = os.getenv(name)
         if not value:

@@ -1,1 +1,7 @@
 python-dotenv~=1.1.1
+requests~=2.32.5
+pydantic~=2.11.7
+Faker~=37.6.0
+pytest~=8.4.1
+allure-pytest~=2.15.0
+allure-python-commons~=2.15.0
