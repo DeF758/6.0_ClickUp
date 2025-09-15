@@ -28,10 +28,11 @@ class TaskModel(BaseModel):
     check_required_custom_fields: bool | None = Field(default=None,
         description="Ignore checked required fields: false (default). Check required fields: true.")
     custom_item_id: int | None = None
+    huevoe_pole: str|None=None
 
     @classmethod
     def gen_fake_data(cls):
-        statuses = ["TO DO", "In Progress", "Ready to start Testing", "Testing", "Ready to Deploy", "Done", "Blocked"]
+        STATUSES = ["TO DO", "In Progress", "Ready to start Testing", "Testing", "Ready to Deploy", "Done", "Blocked"]
         fake = Faker()
         return TaskModel(
             name=fake.catch_phrase(),
@@ -40,7 +41,7 @@ class TaskModel(BaseModel):
             archived=fake.boolean(),
             group_assignees=[fake.uuid4() for _ in range(randint(1, 9))],
             tags=[fake.bs().replace(" ", "_") for _ in range(randint(0, 3))],
-            status=choice(statuses),
+            status=choice(STATUSES),
             priority=randint(1, 4),
             due_date=randint(int(time.time() * 1000), int(time.time() * 1000) + 61 * 24 * 60 * 60 * 1000),
             due_date_time=fake.boolean(),
@@ -48,5 +49,12 @@ class TaskModel(BaseModel):
             start_date=randint(int(time.time() * 1000) - 61 * 24 * 60 * 60 * 1000, int(time.time() * 1000)),
             start_date_time=fake.boolean(),
             points=randint(0, 3),
-            notify_all=fake.boolean(),
+            notify_all=fake.boolean()
+        )
+
+    @classmethod
+    def gen_required_field(cls):
+        fake = Faker()
+        return TaskModel(
+            name=fake.catch_phrase()
         )

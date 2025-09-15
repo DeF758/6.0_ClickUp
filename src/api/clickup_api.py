@@ -4,7 +4,6 @@ import requests
 from src.data.json_convert import JsonConvert
 from src.enums.headers import Header
 from src.enums.urls import Url
-from src.enums.static_ids import StaticId
 from utils.helpers import Helper
 
 
@@ -17,13 +16,13 @@ class ClickupApi:
         self.headers = self.HEADERS
         self.url = Url.API_URL.value
 
-    def get_tasks(self, list_id=StaticId.LIST_ID.value, **query_params):
+    def get_tasks(self, list_id=Helper.LIST_ID, **query_params):
         url = f"{self.url.rstrip("/")}/api/v2/list/{list_id}/task"
         response = requests.get(url=url, params=query_params, headers=self.headers)
         self.__log(response)
         return response
 
-    def create_task(self, data, list_id=StaticId.LIST_ID.value):
+    def create_task(self, data, list_id=Helper.LIST_ID):
         url = f"{self.url.rstrip("/")}/api/v2/list/{list_id}/task"
         response = requests.post(url=url, json=JsonConvert.data_to_json(data), headers=self.headers)
         self.__log(response)

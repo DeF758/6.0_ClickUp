@@ -14,3 +14,4 @@ class Helper:
     TOKEN = get_env_variable("TOKEN")
     EMAIL = get_env_variable("EMAIL")
     PASSWORD = get_env_variable("PASSWORD")
+    LIST_ID = get_env_variable("LIST_ID")
