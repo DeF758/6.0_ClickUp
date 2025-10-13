@@ -28,7 +28,7 @@ class TaskModel(BaseModel):
     check_required_custom_fields: bool | None = Field(default=None,
         description="Ignore checked required fields: false (default). Check required fields: true.")
     custom_item_id: int | None = None
-    huevoe_pole: str|None=None
+    huevo_pole: str|None=None
 
     @classmethod
     def gen_fake_data(cls):
@@ -48,7 +48,7 @@ class TaskModel(BaseModel):
             time_estimate=randint(1 * 60 * 60 * 1000, 24 * 60 * 60 * 1000),
             start_date=randint(int(time.time() * 1000) - 61 * 24 * 60 * 60 * 1000, int(time.time() * 1000)),
             start_date_time=fake.boolean(),
-            points=randint(0, 3),
+            # points=randint(0, 3),
             notify_all=fake.boolean()
         )
 
