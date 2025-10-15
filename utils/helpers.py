@@ -41,10 +41,11 @@ class Helper:
                 return {"name": get_gen_data.name, "start_date": get_gen_data.start_date}
 
     @staticmethod
-    def timestamp_conv(date: str) -> int:
+    def unix_conv(date: str) -> int:
         '''"dd/mm/yyyy" or "dd/mm/yyyy hh:mm:ss"'''
         try:
             dt = datetime.strptime(date, "%d/%m/%Y")
         except ValueError:
             dt = datetime.strptime(date, "%d/%m/%Y %H:%M:%S")
-        return int(dt.timestamp() * 1000)
+        epoch = datetime(1970,1,1)
+        return int((dt-epoch).total_seconds() * 1000)

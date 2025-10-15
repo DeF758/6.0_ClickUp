@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 import allure
 from random import randint, choice, sample
 
@@ -241,7 +243,7 @@ class TestTask:
             [2147483647, "Status must be a string", 400],
             [True, "Status must be a string", 400],
             ["str", "Status not found", 400],
-            ["T" * 4194248, "request entity too large", 413],
+            ["T" * 4194249, "request entity too large", 413],
             [[0], "Status must be a string", 400],
             [[False], "Status must be a string", 400]
         ]
@@ -250,7 +252,7 @@ class TestTask:
             [2147483647, "Task status invalid", 400],
             [True, "Task status invalid", 400],
             ["str", "Status does not exist", 400],
-            ["T" * 4194248, "request entity too large", 413],
+            ["T" * 4194249, "request entity too large", 413],
             [[0], "Task status invalid", 400],
             [[False], "Task status invalid", 400]
         ]
@@ -294,61 +296,84 @@ class TestTask:
                 assert invalid_task.json()["err"] == err_msg
 
     def test_date_fields_create_update_task(self, auth_sess, get_gen_data, get_gen_req_field):
-        status_field = {"name": get_gen_data.name, "start_date": get_gen_data.start_date, "due_date": get_gen_data.due_date}
-        valid_data = [Helper.timestamp_conv("12/31/5000"), "In Progress", "Ready to start Testing", "Testing", "Ready to Deploy", "Done", "Blocked"]
-        invalid_data_map_cr = [
-            [["str"], "Status must be a string", 400],
-            [2147483647, "Status must be a string", 400],
-            [True, "Status must be a string", 400],
-            ["str", "Status not found", 400],
-            ["T" * 4194248, "request entity too large", 413],
-            [[0], "Status must be a string", 400],
-            [[False], "Status must be a string", 400]
-        ]
-        invalid_data_map_upd = [
-            [["str"], "Task status invalid", 400],
-            [2147483647, "Task status invalid", 400],
-            [True, "Task status invalid", 400],
-            ["str", "Status does not exist", 400],
-            ["T" * 4194248, "request entity too large", 413],
-            [[0], "Task status invalid", 400],
-            [[False], "Task status invalid", 400]
+        date_field = {"name": get_gen_data.name, "start_date": None, "due_date": None}
+
+        yesterday = Helper.unix_conv(str((datetime.now() - timedelta(days=1)).strftime("%d/%m/%Y %H:%M:%S")))
+        tomorrow = Helper.unix_conv(str((datetime.now() + timedelta(days=1)).strftime("%d/%m/%Y %H:%M:%S")))
+
+        valid_data_start = [Helper.unix_conv("01/01/1970"), 8639999989199999, tomorrow]
+        valid_data_due = [Helper.unix_conv("31/12/1969 21:00:00"), 8639999989199999, yesterday]
+
+        date_invalid_map_cr = [
+            [Helper.unix_conv("31/12/1969 20:59:59"), "Due date not valid, must be positive", 400],
+            [8639999989200000, "Internal Server Error", 500],
+            ["str", "Date invalid", 400],
+            [[False], "Date invalid", 400]
         ]
 
-        with allure.step("Создание задачи с валидными данными в status"):
-            for valid_status in valid_data:
-                status_field["status"] = valid_status
-                valid_task = auth_sess.create_task(status_field)
+        with allure.step("Создание задачи с валидными данными в date"):
+            for valid_start, valid_due in zip(valid_data_start, valid_data_due):
+                date_field["start_date"] = valid_start
+                date_field["due_date"] = valid_due
+                valid_task = auth_sess.create_task(date_field)
                 assert valid_task.status_code == 200
-                assert valid_task.json()["status"]["status"] == valid_status.lower()
 
-        with allure.step("Создание задачи с не валидными данными в status"):
-            for invalid_case in invalid_data_map_cr:
+        with allure.step("Создание задачи с не валидными данными в due_date"):
+            for invalid_case in date_invalid_map_cr:
                 value = invalid_case[0]
                 err_msg = invalid_case[1]
                 status_code = invalid_case[2]
 
-                status_field["status"] = value
-                invalid_task = auth_sess.create_task(status_field)
+                date_field["due_date"] = value
+                invalid_task = auth_sess.create_task(date_field)
+                assert invalid_task.status_code == status_code
+                assert invalid_task.json()["err"] == err_msg
+
+        with allure.step("Создание задачи с не валидными данными в start_date"):
+            date_field["due_date"] = None
+            date_invalid_map_cr.pop(0)
+
+            for invalid_case in date_invalid_map_cr:
+                value = invalid_case[0]
+                err_msg = invalid_case[1]
+                status_code = invalid_case[2]
+
+                date_field["start_date"] = value
+                invalid_task = auth_sess.create_task(date_field)
                 assert invalid_task.status_code == status_code
                 assert invalid_task.json()["err"] == err_msg
 
         task_id = valid_task.json()["id"]
 
-        with allure.step("Создание задачи с валидными данными в status"):
-            for valid_status in valid_data:
-                status_field["status"] = valid_status
-                valid_task = auth_sess.update_task(task_id, status_field)
-                assert valid_task.status_code == 200
-                assert valid_task.json()["status"]["status"] == valid_status.lower()
+        with allure.step("Создание задачи с валидными данными в date"):
+            valid_data_start[0] = Helper.unix_conv("01/01/0001")
+            valid_data_due[0] = Helper.unix_conv("01/01/0001")
+            valid_data_start[1] = 8639999899999999
+            valid_data_due[1] = 8639999899999999
 
-        with allure.step("Создание задачи с не валидными данными в status"):
-            for invalid_case in invalid_data_map_upd:
+            for valid_start, valid_due in zip(valid_data_start, valid_data_due):
+                date_field["start_date"] = valid_start
+                date_field["due_date"] = valid_due
+                valid_task = auth_sess.update_task(task_id, date_field)
+                assert valid_task.status_code == 200
+
+        with allure.step("Создание задачи с не валидными данными в due_date"):
+            date_field["start_date"] = None
+            for invalid_case in date_invalid_map_cr:
+
                 value = invalid_case[0]
                 err_msg = invalid_case[1]
                 status_code = invalid_case[2]
 
-                status_field["status"] = value
-                invalid_task = auth_sess.update_task(task_id, status_field)
+                date_field["due_date"] = value
+                invalid_task = auth_sess.update_task(task_id, date_field)
                 assert invalid_task.status_code == status_code
                 assert invalid_task.json()["err"] == err_msg
+
+        with allure.step("Создание задачи с не валидными данными в start_date"):
+            date_field["due_date"] = None
+            for invalid_case in date_invalid_map_cr:
+                date_field["start_date"] = invalid_case[0]
+                invalid_task = auth_sess.update_task(task_id, date_field)
+                assert invalid_task.status_code == 500
+                assert invalid_task.json()["err"] == "Internal Server Error"
