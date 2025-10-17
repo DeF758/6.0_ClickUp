@@ -39,6 +39,8 @@ class Helper:
                 return {"name": get_gen_data.name, "due_date": get_gen_data.due_date}
             case "start_date":
                 return {"name": get_gen_data.name, "start_date": get_gen_data.start_date}
+            case "start_date,due_date":
+                return {"name": get_gen_data.name, "start_date": get_gen_data.start_date, "due_date": get_gen_data.due_date}
 
     @staticmethod
     def unix_conv(date: str) -> int:

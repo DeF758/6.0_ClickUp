@@ -1,3 +1,11 @@
+
+import sys
+import os
+
+# Добавляем корневую директорию проекта в пути импорта
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, project_root)
+
 import pytest
 import allure
 

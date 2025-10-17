@@ -1,3 +1,5 @@
+from pydoc import describe
+
 from utils.helpers import Helper
 
 
@@ -13,6 +15,12 @@ def csdc(auth_sess, field_name: str, valid_data: list,  get_gen_data):
         valid_task = auth_sess.create_task(test_field_json)
         # assert valid_task.status_code == 200
         return valid_task
+
+def create_task_and_get_json(auth_sess, field_name: str,  get_gen_data):
+    test_field_json = Helper.choice_field(field_name, get_gen_data)
+    valid_task = auth_sess.create_task(test_field_json)
+    assert valid_task.status_code == 200
+    return valid_task.json()["id"], test_field_json
 
 
 def check_cr_invalid_map(auth_sess, field_name: str, invalid_data_map: list,  get_gen_data):
