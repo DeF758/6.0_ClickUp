@@ -59,7 +59,10 @@ class ClickupApi:
         logs += f"\n========== RESPONSE =========="
         logs += f"\nStatus: {response.status_code}"
         if response.content:
-            logs += f"\nResponse: {json.dumps(json.loads(response.text), indent=2, ensure_ascii=False)}"
+            try:
+                logs += f"\nResponse: {json.dumps(json.loads(response.text), indent=2, ensure_ascii=False)}"
+            except Exception:
+                logs += f"\nResponse: {response.text}"
         else:
             logs += "\nResponse:<empty>"
         logs += "\n================================================================================\n"

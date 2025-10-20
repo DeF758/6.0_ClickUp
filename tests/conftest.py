@@ -11,7 +11,7 @@ import allure
 
 from src.api.clickup_api import ClickupApi
 from src.data.task_model import TaskModel
-from src.scenarios.scenarios import  clear_board
+from src.scenarios.scenarios import clear_board, create_and_get_task_id
 
 
 @pytest.fixture(scope="session")
@@ -29,6 +29,11 @@ def get_gen_data():
 @pytest.fixture(scope="function")
 def get_gen_req_field():
     return TaskModel.gen_required_field()
+
+@allure.title("Создание задачи и получение task_id")
+@pytest.fixture(scope="function")
+def get_task_id(auth_sess, get_gen_data):
+    return create_and_get_task_id(auth_sess, get_gen_data)
 
 @allure.title("Очистка доски")
 @pytest.fixture(scope="session",autouse=True)

@@ -1,11 +1,7 @@
-from datetime import datetime, timedelta
-
 import allure
-from random import randint, choice, sample
-
 import pytest
-
-from scenarios.scenarios import csdc, check_cr_invalid_map, create_task_and_get_json
+from datetime import datetime, timedelta
+from scenarios.scenarios import create_task_and_get_body
 from utils.helpers import Helper
 
 
@@ -46,7 +42,7 @@ class TestNameFieldCreateUpdateTask:
     @pytest.mark.parametrize(
         "valid_name", valid_data)
     def test_name_field_update_task(self, auth_sess, get_gen_data, valid_name):
-        task_id, payload = create_task_and_get_json(auth_sess, "name", get_gen_data)
+        task_id, payload = create_task_and_get_body(auth_sess, "name", get_gen_data)
         payload["name"] = valid_name
         valid_task = auth_sess.update_task(task_id, payload)
         assert valid_task.status_code == 200
@@ -60,7 +56,7 @@ class TestNameFieldCreateUpdateTask:
             pytest.param("w" * 2049, id="First invalid above")  # first invalid below
         ], ids=str)
     def test_invalid_name_field_update_task(self, auth_sess, get_gen_data, invalid_name):
-        task_id, payload = create_task_and_get_json(auth_sess, "name", get_gen_data)
+        task_id, payload = create_task_and_get_body(auth_sess, "name", get_gen_data)
         payload["name"] = invalid_name
         invalid_task = auth_sess.update_task(task_id, payload)
         assert invalid_task.status_code == 400
@@ -118,7 +114,7 @@ class TestDescriptionFieldCreateUpdateTask:
     @pytest.mark.parametrize(
         "valid_description", valid_data, ids=str)
     def test_description_field_update_task(self, auth_sess, get_gen_data, valid_description):
-        task_id, payload = create_task_and_get_json(auth_sess, "description", get_gen_data)
+        task_id, payload = create_task_and_get_body(auth_sess, "description", get_gen_data)
         payload["description"] = valid_description
         valid_task = auth_sess.update_task(task_id, payload)
         assert valid_task.status_code == 200
@@ -135,7 +131,7 @@ class TestDescriptionFieldCreateUpdateTask:
             pytest.param(["str"], id="Another type: [str]"),
         ], ids=str)
     def test_unsaved_description_field_update_task(self, auth_sess, get_gen_data, unsaved_description):
-        task_id, payload = create_task_and_get_json(auth_sess, "description", get_gen_data)
+        task_id, payload = create_task_and_get_body(auth_sess, "description", get_gen_data)
         payload["description"] = unsaved_description
         unsaved_description_task = auth_sess.update_task(task_id, payload)
         assert unsaved_description_task.status_code == 200
@@ -148,7 +144,7 @@ class TestDescriptionFieldCreateUpdateTask:
             pytest.param("w" * 262145, id="First invalid above")
         ], ids=str)
     def test_invalid_description_field_update_task(self, auth_sess, get_gen_data, invalid_description):
-        task_id, payload = create_task_and_get_json(auth_sess, "description", get_gen_data)
+        task_id, payload = create_task_and_get_body(auth_sess, "description", get_gen_data)
         payload["description"] = invalid_description
         invalid_task = auth_sess.update_task(task_id, payload)
         assert invalid_task.status_code == 413
@@ -196,7 +192,7 @@ class TestAssigneesFieldCreateUpdateTask:
             pytest.param(False, id="False"),
         ], ids=str)
     def test_unsaved_assignees_field_update_task(self, auth_sess, get_gen_data, unsaved_assignees):
-        task_id, payload = create_task_and_get_json(auth_sess, "assignees", get_gen_data)
+        task_id, payload = create_task_and_get_body(auth_sess, "assignees", get_gen_data)
         payload["assignees"] = {"add": unsaved_assignees}
         unsaved_assignees_task = auth_sess.update_task(task_id, payload)
         assert unsaved_assignees_task.status_code == 200
@@ -212,7 +208,7 @@ class TestAssigneesFieldCreateUpdateTask:
             ["xx", "Internal Server Error", 500],
             [[True], "Internal Server Error", 500]])
     def test_invalid_assignees_field_update_task(self, auth_sess, get_gen_data, invalid_value, ex_err, ex_code):
-        task_id, payload = create_task_and_get_json(auth_sess, "assignees", get_gen_data)
+        task_id, payload = create_task_and_get_body(auth_sess, "assignees", get_gen_data)
         payload["assignees"] = {"add": invalid_value}
         invalid_task = auth_sess.update_task(task_id, payload)
         assert invalid_task.status_code == ex_code
@@ -255,7 +251,7 @@ class TestArchivedFieldCreateUpdateTask:
     @pytest.mark.parametrize(
         "valid_archived", valid_data, ids=str)
     def test_archived_field_update_task(self, auth_sess, get_gen_data, valid_archived):
-        task_id, payload = create_task_and_get_json(auth_sess, "archived", get_gen_data)
+        task_id, payload = create_task_and_get_body(auth_sess, "archived", get_gen_data)
         payload["archived"] = valid_archived
         valid_task = auth_sess.update_task(task_id, payload)
         assert valid_task.status_code == 200
@@ -266,7 +262,7 @@ class TestArchivedFieldCreateUpdateTask:
     @pytest.mark.parametrize(
         "invalid_archived", unsaved_data)
     def test_unsaved_archived_field_update_task(self, auth_sess, get_gen_data, invalid_archived):
-        task_id, payload = create_task_and_get_json(auth_sess, "archived", get_gen_data)
+        task_id, payload = create_task_and_get_body(auth_sess, "archived", get_gen_data)
         payload["archived"] = invalid_archived
         invalid_task = auth_sess.update_task(task_id, payload)
         assert invalid_task.status_code == 500
@@ -343,7 +339,7 @@ class TestStatusFieldCreateUpdateTask:
             pytest.param(2147483647, "Status must be a string", 400, id="Another type: int "),
             pytest.param(True, "Status must be a string", 400, id="Another type: bool "),
             pytest.param("str", "Status not found", 400, id="Unregistered status "),
-            pytest.param("T" * 4194251, "request entity too large", 400, id="First invalid above"),
+            pytest.param("T" * 4194251, "request entity too large", 413, id="First invalid above"),
             pytest.param([0], "Status must be a string", 400, id="Another type: [int] "),
             pytest.param([False], "Status must be a string", 400, id="Another type: [bool]")
         ], ids=str)
@@ -358,7 +354,7 @@ class TestStatusFieldCreateUpdateTask:
     @pytest.mark.parametrize(
         "valid_value", valid_data, ids=str)
     def test_status_field_update_task(self, auth_sess, get_gen_data, valid_value):
-        task_id, payload = create_task_and_get_json(auth_sess, "status", get_gen_data)
+        task_id, payload = create_task_and_get_body(auth_sess, "status", get_gen_data)
         payload["status"] = valid_value
         valid_task = auth_sess.update_task(task_id, payload)
         assert valid_task.status_code == 200
@@ -376,7 +372,7 @@ class TestStatusFieldCreateUpdateTask:
             pytest.param([False], "Task status invalid", 400, id="Another type: [bool]")
         ])
     def test_invalid_status_field_update_task(self, auth_sess, get_gen_data, invalid_value, ex_err, ex_code):
-        task_id, payload = create_task_and_get_json(auth_sess, "status", get_gen_data)
+        task_id, payload = create_task_and_get_body(auth_sess, "status", get_gen_data)
         payload["status"] = invalid_value
         invalid_task = auth_sess.update_task(task_id, payload)
         assert invalid_task.status_code == ex_code
@@ -440,7 +436,7 @@ class TestDateFieldsCreateUpdateTask:
             pytest.param(tomorrow, yesterday, id="start_date after due_date"),
         ], ids=str)
     def test_start_due_date_field_update_task(self, auth_sess, get_gen_data, start_valid, due_valid):
-        task_id, payload = create_task_and_get_json(auth_sess, "start_date,due_date", get_gen_data)
+        task_id, payload = create_task_and_get_body(auth_sess, "start_date,due_date", get_gen_data)
         payload["start_date"] = start_valid
         payload["due_date"] = due_valid
         valid_task = auth_sess.update_task(task_id, payload)
@@ -455,7 +451,7 @@ class TestDateFieldsCreateUpdateTask:
             pytest.param([False], "Internal Server Error", 500, id="Another type: [bool]")
         ])
     def test_invalid_start_date_field_update_task(self, auth_sess, get_gen_data, invalid_value, ex_err, ex_code):
-        task_id, payload = create_task_and_get_json(auth_sess, "start_date", get_gen_data)
+        task_id, payload = create_task_and_get_body(auth_sess, "start_date", get_gen_data)
         payload["start_date"] = invalid_value
         invalid_task = auth_sess.update_task(task_id, payload)
         assert invalid_task.status_code == ex_code
@@ -470,29 +466,84 @@ class TestDateFieldsCreateUpdateTask:
             pytest.param([False], "Date invalid", 400, id="Another type: [bool]")
         ])
     def test_invalid_due_date_field_update_task(self, auth_sess, get_gen_data, invalid_value, ex_err, ex_code):
-        task_id, payload = create_task_and_get_json(auth_sess, "due_date", get_gen_data)
+        task_id, payload = create_task_and_get_body(auth_sess, "due_date", get_gen_data)
         payload["due_date"] = invalid_value
         invalid_task = auth_sess.update_task(task_id, payload)
         assert invalid_task.status_code == ex_code
         assert invalid_task.json()["err"] == ex_err
 
-# class TestTask:
-#
-#     def test_create_task(self, auth_sess, get_gen_data, get_gen_req_field):
-#         task_data = get_gen_data
-#         # task_data.archived = False
-#         first_task = auth_sess.create_task(data=task_data)
-#         assert first_task.status_code == 200
-#         assert auth_sess.get_task(first_task.json()["id"]).status_code == 200
-#
-#         with allure.step("Создание задачи с названием больше допустимого"):
-#             sec_data = task_data.copy()
-#             sec_data.name = "w" * 2049
-#             sec_task = auth_sess.create_task(data=sec_data)
-#             assert sec_task.status_code == 400
-#
-#         task_data = get_gen_data
-#         sec_task = auth_sess.create_task(data=task_data)
-#         assert sec_task.status_code == 200
-#
-#         assert auth_sess.create_task(data=get_gen_req_field).status_code == 200
+
+@allure.feature("Проверка Get, Update, Delete feature")
+class TestGetUpdateDeleteTask:
+    @allure.title("Проверка Get")
+    def test_get_task(self, auth_sess, get_gen_data, get_task_id):
+        with allure.step("Получение задачи по id"):
+            get_task = auth_sess.get_task(get_task_id)
+            assert get_task.status_code == 200
+            assert get_task.json()["id"] == get_task_id
+
+        with allure.step("Получение задачи по id с description в markdown"):
+            get_markdown_task = auth_sess.get_task(get_task_id, include_markdown_description="true")
+            assert get_markdown_task.status_code == 200
+            assert get_markdown_task.json()["markdown_description"] == get_gen_data.description
+
+        with allure.step("Удаление задачи"):
+            assert auth_sess.delete_task(get_task_id).status_code == 204
+
+        with allure.step("Получение удалённой задачи"):
+            get_deleted_task = auth_sess.get_task(get_task_id)
+            assert get_deleted_task.status_code == 404
+            assert get_deleted_task.json()["err"] == "Task not found, deleted"
+
+        with allure.step("Получение задачи по не валидному id"):
+            get_int_task = auth_sess.get_task(123)
+            assert get_int_task.status_code == 401
+            assert get_int_task.json()["err"] == "Team not authorized"
+
+        with allure.step("Получение задачи без id"):
+            get_empty_task = auth_sess.get_task("")
+            assert get_empty_task.status_code == 404
+            assert get_empty_task.json()["err"] == "Route not found"
+
+    @allure.title("Проверка Update")
+    def test_update_task(self, auth_sess, get_gen_data, get_task_id):
+        with allure.step("Обновление задачи по id"):
+            assert auth_sess.update_task(get_task_id).status_code == 200
+
+        with allure.step("Удаление задачи"):
+            assert auth_sess.delete_task(get_task_id).status_code == 204
+
+        with allure.step("Обновление удалённой задачи"):
+            update_deleted_task = auth_sess.get_task(get_task_id)
+            assert update_deleted_task.status_code == 404
+            assert update_deleted_task.json()["err"] == "Task not found, deleted"
+
+        with allure.step("Обновление задачи по не валидному id"):
+            update_int_task = auth_sess.update_task(123)
+            assert update_int_task.status_code == 401
+            assert update_int_task.json()["err"] == "Team not authorized"
+
+        with allure.step("Обновление задачи по пустому id"):
+            assert auth_sess.update_task("").status_code == 404
+
+    @allure.title("Проверка Delete")
+    def test_delete_task(self, auth_sess, get_gen_data, get_task_id):
+        with allure.step("Удаление задачи"):
+            assert auth_sess.delete_task(get_task_id).status_code == 204
+
+        with allure.step("Проверка, что задача удалена"):
+            get_deleted_task = auth_sess.get_task(get_task_id)
+            assert get_deleted_task.status_code == 404
+            assert get_deleted_task.json()["err"] == "Task not found, deleted"
+
+        with allure.step("Удаление удалённой задачи"):
+            assert auth_sess.delete_task(get_task_id).status_code == 204
+
+        with allure.step("Удаление задачи по не валидному id"):
+            delete_int_task = auth_sess.delete_task(123)
+            assert delete_int_task.status_code == 401
+            assert delete_int_task.json()["err"] == "Team not authorized"
+
+        with allure.step("Удаление задачи по пустому id"):
+            delete_empty_task = auth_sess.delete_task("")
+            assert delete_empty_task.status_code == 404
