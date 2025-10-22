@@ -367,7 +367,7 @@ class TestStatusFieldCreateUpdateTask:
             pytest.param(2147483647, "Task status invalid", 400, id="Another type: int "),
             pytest.param(True, "Task status invalid", 400, id="Another type: bool "),
             pytest.param("str", "Status does not exist", 400, id="Unregistered status "),
-            pytest.param("T" * 4194249, "request entity too large", 413, id="Minimum value "),
+            pytest.param("T" * 4194250, "request entity too large", 413, id="First invalid above "),
             pytest.param([0], "Task status invalid", 400, id="Another type: [int] "),
             pytest.param([False], "Task status invalid", 400, id="Another type: [bool]")
         ])
@@ -473,7 +473,7 @@ class TestDateFieldsCreateUpdateTask:
         assert invalid_task.json()["err"] == ex_err
 
 
-@allure.feature("Проверка Get, Update, Delete feature")
+@allure.feature("Проверка Get, Update, Delete")
 class TestGetUpdateDeleteTask:
     @allure.title("Проверка Get")
     def test_get_task(self, auth_sess, get_gen_data, get_task_id):
