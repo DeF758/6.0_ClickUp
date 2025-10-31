@@ -17,6 +17,7 @@ class Helper:
     EMAIL = get_env_variable("EMAIL")
     PASSWORD = get_env_variable("PASSWORD")
     LIST_ID = get_env_variable("LIST_ID")
+    ID = get_env_variable("ID")
 
     @staticmethod
     def choice_field(field_name: str, get_gen_data):

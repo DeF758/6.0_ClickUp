@@ -5,3 +5,4 @@ Faker~=37.11.0
 pytest~=8.4.1
 allure-pytest~=2.15.0
 allure-python-commons~=2.15.0
+playwright~=1.55.0

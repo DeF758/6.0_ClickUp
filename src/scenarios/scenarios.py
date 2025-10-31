@@ -28,6 +28,14 @@ def create_and_get_task_id(auth_sess, get_gen_data):
     return task_id.json()["id"]
 
 
+def create_and_get_task_name(auth_sess, get_gen_data):
+    data = get_gen_data
+    data.archived = False
+    task_id = auth_sess.create_task(data)
+    assert task_id.status_code == 200
+    return task_id.json()["name"]
+
+
 def check_cr_invalid_map(auth_sess, field_name: str, invalid_data_map: list, get_gen_data):
     test_field_json = Helper.choice_field(field_name, get_gen_data)
     for invalid_case in invalid_data_map:
