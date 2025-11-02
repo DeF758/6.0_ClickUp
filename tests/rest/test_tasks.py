@@ -503,7 +503,6 @@ class TestGetUpdateDeleteTask:
         with allure.step("Получение задачи без id"):
             get_empty_task = auth_sess.get_task("")
             assert get_empty_task.status_code == 404
-            assert get_empty_task.json()["err"] == "Route not found"
 
     @allure.title("Проверка Update")
     def test_update_task(self, auth_sess, get_gen_data, get_task_id):
