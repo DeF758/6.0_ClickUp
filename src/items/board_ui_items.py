@@ -34,4 +34,3 @@ class BoardUiItems(GeneralUiItems):
 
     def add_task_in_status(self)->Locator:
         return self.page.locator(f"//li[1]//button[@data-test='board-group__create-task-button__Add Task']")
-        # return self.page.locator(f"//div[@id='cdk-drop-list-4']/..//button[@data-test='board-group__create-task-button__Add Task']")
