@@ -32,7 +32,7 @@ class TaskModel(BaseModel):
 
     @classmethod
     def gen_fake_data(cls):
-        STATUSES = ["TO DO", "In Progress", "Ready to start Testing", "Testing", "Ready to Deploy", "Done", "Blocked"]
+        STATUSES = ("TO DO", "In Progress", "Ready to start Testing", "Testing", "Ready to Deploy", "Done", "Blocked")
         fake = Faker()
         return TaskModel(
             name=fake.catch_phrase(),
