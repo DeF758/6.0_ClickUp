@@ -13,7 +13,7 @@ from items.board_ui_items import BoardUiItems
 from items.login_ui_items import LoginUiItems
 from src.api.clickup_api import ClickupApi
 from src.data.task_model import TaskModel
-from src.scenarios.scenarios import clear_board, create_and_get_task_id, create_and_get_task_name
+from src.scenarios.scenarios import clear_board, create_and_get_task_id, create_and_get_task_name, get_ids_for_delete
 from utils.helpers import Helper
 
 
@@ -49,16 +49,10 @@ def get_task_name(auth_sess, get_gen_data):
 @allure.title("Очистка доски")
 @pytest.fixture(scope="class", autouse=True)
 def clear_tasks(auth_sess):
-    data_id = auth_sess.get_tasks().json()["tasks"]
-    data_id_archived = auth_sess.get_tasks(archived="true").json()["tasks"]
-    ids = [task_id["id"] for task_id in data_id]
-    ids += [task_id["id"] for task_id in data_id_archived]
+    ids = get_ids_for_delete(auth_sess)
     clear_board(auth_sess, *ids)
     yield
-    data_id = auth_sess.get_tasks().json()["tasks"]
-    data_id_archived = auth_sess.get_tasks(archived="true").json()["tasks"]
-    ids = [task_id["id"] for task_id in data_id]
-    ids += [task_id["id"] for task_id in data_id_archived]
+    ids = get_ids_for_delete(auth_sess)
     clear_board(auth_sess, *ids)
 
 @allure.title("Запуск браузера")

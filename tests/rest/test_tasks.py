@@ -1,6 +1,8 @@
+from datetime import datetime, timedelta
+
 import allure
 import pytest
-from datetime import datetime, timedelta
+
 from scenarios.scenarios import create_task_and_get_body
 from utils.helpers import Helper
 
@@ -498,7 +500,7 @@ class TestGetUpdateDeleteTask:
         with allure.step("Получение задачи по не валидному id"):
             get_int_task = auth_sess.get_task(123)
             assert get_int_task.status_code == 401
-            assert get_int_task.json()["err"] == "Oauth token not found"
+            assert get_int_task.json()["err"] == "Team not authorized"
 
         with allure.step("Получение задачи без id"):
             get_empty_task = auth_sess.get_task("")
@@ -520,7 +522,7 @@ class TestGetUpdateDeleteTask:
         with allure.step("Обновление задачи по не валидному id"):
             update_int_task = auth_sess.update_task(123)
             assert update_int_task.status_code == 401
-            assert update_int_task.json()["err"] == "Oauth token not found"
+            assert update_int_task.json()["err"] == "Team not authorized"
 
         with allure.step("Обновление задачи по пустому id"):
             assert auth_sess.update_task("").status_code == 404
@@ -541,7 +543,7 @@ class TestGetUpdateDeleteTask:
         with allure.step("Удаление задачи по не валидному id"):
             delete_int_task = auth_sess.delete_task(123)
             assert delete_int_task.status_code == 401
-            assert delete_int_task.json()["err"] == "Oauth token not found"
+            assert delete_int_task.json()["err"] == "Team not authorized"
 
         with allure.step("Удаление задачи по пустому id"):
             delete_empty_task = auth_sess.delete_task("")

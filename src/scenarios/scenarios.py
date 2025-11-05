@@ -6,13 +6,12 @@ def clear_board(auth_sess, *ids):
         assert auth_sess.delete_task(task_id).status_code == 204
 
 
-def csdc(auth_sess, field_name: str, valid_data: list, get_gen_data):
-    test_field_json = Helper.choice_field(field_name, get_gen_data)
-    for valid_value in valid_data:
-        test_field_json[field_name] = valid_value
-        valid_task = auth_sess.create_task(test_field_json)
-        # assert valid_task.status_code == 200
-        return valid_task
+def get_ids_for_delete(auth_sess):
+    data_id = auth_sess.get_tasks().json()["tasks"]
+    data_id_archived = auth_sess.get_tasks(archived="true").json()["tasks"]
+    ids = [task_id["id"] for task_id in data_id]
+    ids += [task_id["id"] for task_id in data_id_archived]
+    return ids
 
 
 def create_task_and_get_body(auth_sess, field_name: str, get_gen_data):

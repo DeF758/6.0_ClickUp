@@ -28,7 +28,8 @@ class TestTaskUi:
         with allure.step("Нажать кнопку 'Log In'"):
             login_page.button(LoginSelector.LOG_IN).click()
         with allure.step("Проверить отображение ошибки о некорректном пароле"):
-            expect(login_page.input_field_err(LoginSelector.PASSWORD).filter(has_text="Incorrect password for this email."))
+            expect(login_page.input_field_err(LoginSelector.PASSWORD).filter(
+                has_text="Incorrect password for this email."))
 
     @allure.title("Удаление задачи")
     def test_delete_task(self, browse_board_page, get_task_name):
